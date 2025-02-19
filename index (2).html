@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resistance Mission: Save Ellen!</title>
+    <style>
+        body {
+            background-color: #f0f0f5; /* Soft grayish lavender */
+            font-family: Arial, sans-serif;
+            text-align: center;
+            color: #333;
+        }
+        h1 { color: #483D8B; } /* Dark slate blue */
+        button {
+            background-color: #f0f0f0; /* Light gray */
+            color: #333;
+            padding: 10px;
+            width: 300px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        button:hover { background-color: #e0e0e0; }
+        #feedback { font-weight: bold; margin: 10px; }
+        #comment { font-style: italic; color: #6A5ACD; } /* Slate blue */
+        #next { background-color: #98FB98; /* Pale green */ }
+        progress { width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Resistance Mission: Save Ellen!</h1>
+    <div id="question"></div>
+    <div id="options"></div>
+    <div id="feedback"></div>
+    <div id="comment"></div>
+    <progress id="progress" max="60" value="0"></progress>
+    <p id="progress-text">Progress: 0/60</p>
+    <button id="next" onclick="nextQuestion()" disabled>Next</button>
+
+    <audio id="correctSound" src="correct.wav"></audio>
+    <audio id="incorrectSound" src="incorrect.wav"></audio>
+
+    <script>
+        const questions = [
+            {"question": "Why were Annemarie and Kirsti stopped by the German soldiers in Chapter 4?", "options": ["They were running too fast.", "They were out after curfew.", "They were suspected of carrying contraband.", "The soldiers were looking for someone."], "answer": "They were running too fast."},
+            {"question": "How did Kirsti react to the soldiers in Chapter 4?", "options": ["She was scared and cried.", "She was polite and quiet.", "She talked back to them.", "She ran away."], "answer": "She talked back to them."},
+            {"question": "What reason did Annemarie’s mother give for the soldiers being edgy?", "options": ["The weather was bad.", "The Danish Resistance was causing trouble.", "They were tired from patrol.", "They were looking for escaped prisoners."], "answer": "The Danish Resistance was causing trouble."},
+            {"question": "Who told Annemarie about the Resistance?", "options": ["Her mother", "Her father", "Uncle Henrik", "Ellen"], "answer": "Her father"},
+            {"question": "Why did Ellen’s parents have to leave suddenly?", "options": ["They were going on vacation.", "They were in danger from the Nazis.", "They had to work in another city.", "They were visiting relatives."], "answer": "They were in danger from the Nazis."},
+            {"question": "Where did Ellen stay when her parents left?", "options": ["With her aunt", "At school", "With the Johansens", "In a hiding place"], "answer": "With the Johansens"},
+            {"question": "How was Ellen introduced to the soldiers who came to the apartment in Chapter 5?", "options": ["As Annemarie’s cousin", "As a neighbor’s child", "As Annemarie’s sister", "As a family friend"], "answer": "As Annemarie’s sister"},
+            {"question": "What feature of Ellen’s did the soldiers question in Chapter 5?", "options": ["Her height", "Her dark hair", "Her accent", "Her clothing"], "answer": "Her dark hair"},
+            {"question": "How did Annemarie’s father convince the soldiers that Ellen was part of the family?", "options": ["He showed them Ellen’s birth certificate.", "He showed them baby pictures.", "He called Ellen’s parents to confirm.", "He bribed the soldiers."], "answer": "He showed them baby pictures."},
+            {"question": "Whose baby pictures did Annemarie’s father show to the soldiers?", "options": ["Annemarie’s", "Kirsti’s", "Ellen’s", "Lise’s"], "answer": "Lise’s"},
+            {"question": "Why was it important that the baby pictures showed a child with dark hair?", "options": ["To prove that dark hair runs in the family.", "To show that Ellen could have been adopted.", "To match the soldiers’ expectations of a Danish family.", "To confuse the soldiers."], "answer": "To prove that dark hair runs in the family."},
+            {"question": "Where did the family decide to go in Chapter 6?", "options": ["To Sweden", "To Uncle Henrik’s house", "To the countryside", "Both b and c"], "answer": "Both b and c"},
+            {"question": "How did they travel to Uncle Henrik’s house?", "options": ["By car", "By boat", "By train", "By walking"], "answer": "By train"},
+            {"question": "What was Annemarie told to do if questioned on the train?", "options": ["To tell the truth", "To act like a silly little girl", "To pretend she was sick", "To say she was visiting her grandmother"], "answer": "To act like a silly little girl"},
+            {"question": "How did Annemarie feel when they arrived at Uncle Henrik’s house?", "options": ["Scared", "Relieved and safer", "Bored", "Anxious"], "answer": "Relieved and safer"},
+            {"question": "What does Kirsti say to the soldier who touches her hair in Chapter 4?", "options": ["\"Stop it!\"", "\"Don’t!\"", "\"Leave me alone!\"", "\"You’re mean!\""], "answer": "\"Don’t!\""},
+            {"question": "Why were the soldiers suspicious of Ellen in Chapter 5?", "options": ["She was hiding something.", "She looked different from the rest of the family.", "She was speaking a different language.", "She was carrying a suspicious bag."], "answer": "She looked different from the rest of the family."},
+            {"question": "What color was Lise’s hair when she was a baby?", "options": ["Blonde", "Dark", "Red", "Brown"], "answer": "Dark"},
+            {"question": "What color was Lise’s hair when she grew older?", "options": ["Blonde", "Dark", "Red", "Brown"], "answer": "Blonde"},
+            {"question": "Why did the family go to Uncle Henrik’s house?", "options": ["For a vacation", "To hide from the Nazis", "To help with fishing", "To attend a family gathering"], "answer": "To hide from the Nazis"},
+            {"question": "Who accompanied Annemarie, Ellen, and Kirsti on the train?", "options": ["Mr. Johansen", "Mrs. Johansen", "Both parents", "Uncle Henrik"], "answer": "Mrs. Johansen"},
+            {"question": "What time of year was it when they went to Uncle Henrik’s?", "options": ["Summer", "Autumn", "Winter", "Spring"], "answer": "Autumn"},
+            {"question": "What did Uncle Henrik do for a living?", "options": ["He was a teacher.", "He was a fisherman.", "He was a farmer.", "He was a soldier."], "answer": "He was a fisherman."},
+            {"question": "How did the sea look to Annemarie when she arrived at Uncle Henrik’s?", "options": ["Frightening", "Beautiful and familiar", "Polluted", "Full of ships"], "answer": "Beautiful and familiar"},
+            {"question": "What did Annemarie overhear her parents discussing in Chapter 4?", "options": ["The weather", "The Resistance", "Ellen’s parents being in danger", "Plans for a party"], "answer": "Ellen’s parents being in danger"},
+            {"question": "How did Annemarie feel when she learned that Ellen would be staying with them?", "options": ["Annoyed", "Happy", "Worried", "Indifferent"], "answer": "Happy"},
+            {"question": "What time of day did the soldiers come to the Johansen’s apartment in Chapter 5?", "options": ["Morning", "Afternoon", "Evening", "Night"], "answer": "Night"},
+            {"question": "How did Mrs. Johansen react when the soldiers entered the apartment?", "options": ["She was calm and composed.", "She was terrified.", "She was angry.", "She tried to hide Ellen."], "answer": "She was calm and composed."},
+            {"question": "Why did the soldiers leave without taking Ellen?", "options": ["They believed Mr. Johansen’s story.", "They were called away.", "They found nothing suspicious.", "Both a and c"], "answer": "Both a and c"},
+            {"question": "Why was Annemarie told to act like a silly little girl on the train?", "options": ["To annoy the soldiers", "To avoid suspicion", "To make Ellen laugh", "To pass the time"], "answer": "To avoid suspicion"},
+            {"question": "Did the soldiers on the train question Annemarie and her family?", "options": ["Yes", "No"], "answer": "No"},
+            {"question": "How did Kirsti behave on the train?", "options": ["She was quiet.", "She was restless and talkative.", "She was sleeping.", "She was reading."], "answer": "She was restless and talkative."},
+            {"question": "What does “Is the weather good for fishing?” mean in the context of the story?", "options": ["It’s a good day to go fishing.", "It’s safe to bring Ellen to Uncle Henrik’s.", "The sea is calm.", "There are no soldiers around."], "answer": "It’s safe to bring Ellen to Uncle Henrik’s."},
+            {"question": "Who asked, “Is the weather good for fishing?”", "options": ["Mr. Johansen", "Mrs. Johansen", "Annemarie", "Uncle Henrik"], "answer": "Mr. Johansen"},
+            {"question": "Was Uncle Henrik at home when they arrived?", "options": ["Yes", "No"], "answer": "No"},
+            {"question": "What was Uncle Henrik doing when they arrived?", "options": ["Fishing", "Farming", "Sleeping", "Cooking"], "answer": "Fishing"},
+            {"question": "What did Annemarie and Ellen do when they first arrived at Uncle Henrik’s house?", "options": ["They helped with dinner.", "They went to bed.", "They played outside.", "They listened to the radio."], "answer": "They played outside."},
+            {"question": "What did Annemarie do with Ellen’s necklace in Chapter 5?", "options": ["She threw it away.", "She hid it in her hand.", "She gave it to her mother.", "She buried it."], "answer": "She hid it in her hand."},
+            {"question": "How did Annemarie remove Ellen’s necklace?", "options": ["She asked Ellen to take it off.", "She unclasped it carefully.", "She ripped it off quickly.", "She cut it with scissors."], "answer": "She ripped it off quickly."},
+            {"question": "Why was it important to remove Ellen’s necklace?", "options": ["It was too tight.", "It was a Jewish symbol.", "It was broken.", "It was expensive."], "answer": "It was a Jewish symbol."},
+            {"question": "Ellen’s parents left because they were going on a trip.", "options": ["True", "False"], "answer": "False"},
+            {"question": "Annemarie’s father was a member of the Resistance.", "options": ["True", "False"], "answer": "True"},
+            {"question": "The soldiers came to the Johansen’s apartment in the morning.", "options": ["True", "False"], "answer": "False"},
+            {"question": "Kirsti was aware of the danger posed by the soldiers.", "options": ["True", "False"], "answer": "False"},
+            {"question": "Ellen wore a Star of David necklace, which Annemarie hid.", "options": ["True", "False"], "answer": "True"},
+            {"question": "The family traveled to Uncle Henrik’s house by boat.", "options": ["True", "False"], "answer": "False"},
+            {"question": "Annemarie was excited to visit Uncle Henrik.", "options": ["True", "False"], "answer": "True"},
+            {"question": "Uncle Henrik was at home when the family arrived.", "options": ["True", "False"], "answer": "False"},
+            {"question": "The soldiers on the train questioned Annemarie and her family.", "options": ["True", "False"], "answer": "False"},
+            {"question": "Kirsti talked about Ellen being Jewish on the train.", "options": ["True", "False"], "answer": "False"},
+            {"question": "Describe why the soldiers were suspicious of Ellen in Chapter 5.", "options": ["She was hiding something.", "She looked different from the rest of the family.", "She was speaking a different language.", "She was carrying a suspicious bag."], "answer": "She looked different from the rest of the family."},
+            {"question": "Explain how Mr. Johansen convinced the soldiers that Ellen was part of the family.", "options": ["He showed them Ellen’s birth certificate.", "He showed them baby pictures.", "He called Ellen’s parents to confirm.", "He bribed the soldiers."], "answer": "He showed them baby pictures."},
+            {"question": "What was the purpose of going to Uncle Henrik’s house?", "options": ["For a vacation", "To hide from the Nazis", "To help with fishing", "To attend a family gathering"], "answer": "To hide from the Nazis"},
+            {"question": "How did Annemarie feel about the soldiers on the train?", "options": ["She was excited.", "She was nervous and afraid.", "She was indifferent.", "She was angry."], "answer": "She was nervous and afraid."},
+            {"question": "What did Kirsti do that showed her innocence and lack of understanding of the situation?", "options": ["She talked back to soldiers and chatted freely.", "She stayed quiet.", "She hid behind her mother.", "She cried."], "answer": "She talked back to soldiers and chatted freely."},
+            {"question": "Why was Ellen’s necklace a problem, and what did Annemarie do with it?", "options": ["It was too tight; she threw it away.", "It was a Jewish symbol; she hid it.", "It was broken; she fixed it.", "It was expensive; she kept it safe."], "answer": "It was a Jewish symbol; she hid it."},
+            {"question": "What code phrase did Mr. Johansen use when speaking to Uncle Henrik, and what did it mean?", "options": ["“Is the weather good for fishing?” meaning “Is it safe for Ellen?”", "“How’s the fishing?” meaning “Are there soldiers around?”", "“Are the fish biting?” meaning “Is it a good day?”", "“How’s the weather?” meaning “Is it safe?”"], "answer": "“Is the weather good for fishing?” meaning “Is it safe for Ellen?”"},
+            {"question": "How did the Johansen family explain Ellen’s presence to the soldiers in Chapter 5?", "options": ["They said she was a family friend.", "They said she was their daughter.", "They said she was a neighbor.", "They said she was visiting."], "answer": "They said she was their daughter."},
+            {"question": "What did Annemarie notice about the sea when she arrived at Uncle Henrik’s house?", "options": ["It was frightening.", "It was beautiful and familiar.", "It was polluted.", "It was full of ships."], "answer": "It was beautiful and familiar."},
+            {"question": "Why was Kirsti’s behavior on the train potentially dangerous, even though she didn’t say anything specific about Ellen?", "options": ["She was too quiet.", "She was talkative and could draw attention.", "She was sleeping.", "She was reading."], "answer": "She was talkative and could draw attention."}
+        ];
+
+        // Verify exactly 60 questions
+        if (questions.length !== 60) {
+            console.error(`Expected 60 questions, but found ${questions.length}!`);
+        }
+
+        let points = 0, streak = 0, incorrectQuestions = [], currentQuestion = 0;
+        const totalQuestions = questions.length;
+        const correctSound = document.getElementById("correctSound");
+        const incorrectSound = document.getElementById("incorrectSound");
+        const comments = {
+            correct: ["Annemarie says: 'Great job, we’re one step closer!'", "Kirsti cheers: 'BOOM! Take that, soldiers!'", "Uncle Henrik nods: 'Well done, fisherman!'"],
+            incorrect: ["Kirsti pouts: 'Don’t! You messed up!'", "Annemarie whispers: 'Careful, the Nazis might hear!'", "Uncle Henrik sighs: 'Try harder next time.'"]
+        };
+
+        // Shuffle questions
+        questions.sort(() => Math.random() - 0.5);
+
+        function loadQuestion() {
+            document.getElementById("question").textContent = `Mission Step ${currentQuestion + 1}: ${questions[currentQuestion].question}`;
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            questions[currentQuestion].options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(opt);
+                optionsDiv.appendChild(btn);
+            });
+            document.getElementById("feedback").textContent = "";
+            document.getElementById("comment").textContent = "";
+            updateProgress();
+        }
+
+        function checkAnswer(selected) {
+            const correct = questions[currentQuestion].answer;
+            if (selected === correct) {
+                streak++;
+                points += 10;
+                if (streak >= 3) {
+                    points += 5;
+                    document.getElementById("feedback").textContent = "Streak Bonus! +5 points!";
+                    document.getElementById("feedback").style.color = "#FFA500";
+                } else {
+                    document.getElementById("feedback").textContent = "Correct! +10 points! BOOM!";
+                    document.getElementById("feedback").style.color = "#228B22";
+                }
+                document.getElementById("comment").textContent = comments.correct[Math.floor(Math.random() * comments.correct.length)];
+                try {
+                    correctSound.play();
+                } catch (e) {
+                    console.error("Error playing correct sound:", e);
+                }
+            } else {
+                streak = 0;
+                incorrectQuestions.push(questions[currentQuestion].question);
+                document.getElementById("feedback").textContent = "Incorrect. UH-OH!";
+                document.getElementById("feedback").style.color = "#CD5C5C";
+                document.getElementById("comment").textContent = comments.incorrect[Math.floor(Math.random() * comments.incorrect.length)];
+                try {
+                    incorrectSound.play();
+                } catch (e) {
+                    console.error("Error playing incorrect sound:", e);
+                }
+            }
+            document.getElementById("next").disabled = false;
+            document.querySelectorAll("#options button").forEach(btn => btn.disabled = true);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < totalQuestions) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+            document.getElementById("next").disabled = true;
+        }
+
+        function updateProgress() {
+            document.getElementById("progress").value = currentQuestion + 1;
+            document.getElementById("progress-text").textContent = `Progress: ${currentQuestion + 1}/${totalQuestions}`;
+        }
+
+        function showResults() {
+            let result = `Mission Complete!\nScore: ${points} points out of ${totalQuestions * 10} possible!\nAccuracy: ${totalQuestions - incorrectQuestions.length}/${totalQuestions}`;
+            if (incorrectQuestions.length > 0) {
+                result += "\n\nMistakes to review:\n" + incorrectQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n");
+            } else {
+                result += "\n\nPerfect Mission! Ellen is safe!";
+            }
+            alert(result);
+        }
+
+        // Start the game
+        loadQuestion();
+    </script>
+</body>
+</html>
